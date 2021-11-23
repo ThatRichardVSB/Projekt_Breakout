@@ -2,26 +2,29 @@
 
 #include <SDL.h>
 
+#include "../../helper/global.h"
+#include "../environment/map.h"
+#include "paddle.h"
+
 #define BALL_SPEED 10
-#define BALL_SIZE 32
 
 typedef struct {
-    int x;
-    int y;
+    Point position;
 
     int velX;
     int velY;
 
-    int size;
     int speed;
+
+    CollisionBox collision;
 } Ball;
 
-Ball* createBall(int x, int y, int speed, int size);
-void destroyBall(Ball** ball);
+Ball* createBall(const int x, const int y, const int speed, const CollisionBox collision);
+void destroyBall(Ball** const ball);
 
-void updateBall(Ball* ball);
+void updateBall(Ball* const ball, const Map* const map, const Paddle* const paddle, const double deltaTime);
 
-void bounceBallHorizontally(Ball* ball);
-void bounceBallVertically(Ball* ball);
+void bounceBallHorizontally(Ball* const ball);
+void bounceBallVertically(Ball* const ball);
 
-void renderBall(SDL_Renderer* renderer, Ball* ball);
+void renderBall(SDL_Renderer* const renderer, const Ball* const ball);

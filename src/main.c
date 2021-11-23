@@ -30,22 +30,24 @@ int main() {
 
     Game* game = createGame(renderer, window, WorldScene);
 
+    Uint64 NOW = SDL_GetPerformanceCounter();
+    Uint64 LAST = 0;
+    double deltaTime = 0;
+
     SDL_Event event;
-    bool quit = false;
-    while (!quit) {
+    while (!game->quit) {
+        LAST = NOW;
+        NOW = SDL_GetPerformanceCounter();
+
+        deltaTime = (double) ((NOW - LAST) * 1000 / (double) SDL_GetPerformanceFrequency()) / 100;
+
         eventClearGame(game);
 
         while (SDL_PollEvent(&event)) {
-            switch (event.type) {
-                case SDL_QUIT: {
-                    quit = true;
-                } break;
-            }
-
             eventGame(game, event);
         }
 
-        updateGame(game);
+        updateGame(game, deltaTime);
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
         SDL_RenderClear(renderer);

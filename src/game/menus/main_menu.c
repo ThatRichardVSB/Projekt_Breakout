@@ -6,7 +6,7 @@
 
 
 // Constructor / Deconstructor
-MainMenu* createMainMenu(Game* game) {
+MainMenu* createMainMenu(Game* const game) {
     MainMenu* menu = (MainMenu*) malloc(sizeof(MainMenu));
 
     menu->game = game;
@@ -21,7 +21,7 @@ MainMenu* createMainMenu(Game* game) {
     return menu;
 }
 
-void mainMenuAddChoice(MainMenu* menu, char* choiceName, void (*action)(MainMenu* menu)) {
+void mainMenuAddChoice(MainMenu* const menu, const char* choiceName, void (*action)(MainMenu* const menu)) {
     unsigned int index = menu->choice_amount;
 
     menu->choice_amount++;
@@ -42,10 +42,10 @@ void mainMenuAddChoice(MainMenu* menu, char* choiceName, void (*action)(MainMenu
     menu->menu_choices[index] = choice;
 }
 
-void destroyMainMenu(MainMenu** _menu) {
-    MainMenu* menu = *_menu;
+void destroyMainMenu(MainMenu** const _menu) {
+    MainMenu* menu = (MainMenu* const) *_menu;
 
-    for (int i = 0; i < menu->choice_amount; i++) {
+    for (unsigned int i = 0; i < menu->choice_amount; i++) {
         free(menu->menu_choices[i].name);
     }
     free(menu->menu_choices);
@@ -55,7 +55,7 @@ void destroyMainMenu(MainMenu** _menu) {
 
 
 // Functions
-void mainMenuMoveChoice(MainMenu* menu, int moveDirection) {
+void mainMenuMoveChoice(MainMenu* const menu, const int moveDirection) {
     if (moveDirection < 0) {
         menu->current_choice--;
     } else if (moveDirection > 0) {
@@ -69,27 +69,26 @@ void mainMenuMoveChoice(MainMenu* menu, int moveDirection) {
     }
 }
 
-void mainMenuActionChoice(MainMenu* menu) {
+void mainMenuActionChoice(MainMenu* const menu) {
     menu->menu_choices[menu->current_choice].action(menu);
 }
 
 
 // Update / Render
-void updateMainMenu(MainMenu* menu) {
+void updateMainMenu(MainMenu* const menu) {
 
 }
 
-void renderMainMenu(SDL_Renderer* renderer, MainMenu* menu) {
+void renderMainMenu(SDL_Renderer* const renderer, const MainMenu* const menu) {
 
 }
 
 
 // Choice function definitions
-static void _playGame(MainMenu* menu) {
-    // Change scene to World
+static void _playGame(MainMenu* const menu) {
+    gameChangeScene(menu->game, WorldScene);
 }
 
-static void _exitGame(MainMenu* menu) {
-    // Exit game
-    exit(0);
+static void _exitGame(MainMenu* const menu) {
+    menu->game->quit = true;
 }

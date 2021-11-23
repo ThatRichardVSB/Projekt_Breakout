@@ -7,7 +7,7 @@ typedef struct MenuChoice _MenuChoice;
 
 struct MenuChoice {
     char* name;
-    void (*action)(_MainMenu* menu);
+    void (*action)(_MainMenu* const menu);
 };
 
 struct MainMenu {
@@ -22,15 +22,15 @@ struct MainMenu {
 typedef struct MainMenu MainMenu;
 typedef struct MenuChoice MenuChoice;
 
-MainMenu* createMainMenu(Game* game);
-void mainMenuAddChoice(MainMenu* menu, char* choiceName, void (*action)(MainMenu* menu));
-void destroyMainMenu(MainMenu** menu);
+MainMenu* createMainMenu(Game* const game);
+void mainMenuAddChoice(MainMenu* const menu, const char* choiceName, void (*action)(MainMenu* const menu));
+void destroyMainMenu(MainMenu** const menu);
 
-void mainMenuMoveChoice(MainMenu* menu, int moveDirection);
-void mainMenuActionChoice(MainMenu* menu);
+void mainMenuMoveChoice(MainMenu* const menu, const int moveDirection);
+void mainMenuActionChoice(MainMenu* const menu);
 
-void updateMainMenu(MainMenu* menu);
-void renderMainMenu(SDL_Renderer* renderer, MainMenu* menu);
+void updateMainMenu(MainMenu* const menu);
+void renderMainMenu(SDL_Renderer* const renderer, const MainMenu* const menu);
 
-static void _playGame(MainMenu* menu);
-static void _exitGame(MainMenu* menu);
+static void _playGame(MainMenu* const menu);
+static void _exitGame(MainMenu* const menu);

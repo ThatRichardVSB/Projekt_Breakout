@@ -1,38 +1,47 @@
 #include <stdlib.h>
 
 #include "../../helper/SDL.h"
+#include "../../helper/global.h"
 #include "../game.h"
 #include "paddle.h"
-
+#include "../environment/map.h"
 
 // Constructor / Deconstructor
-Paddle* createPaddle(int x, int y) {
+Paddle* createPaddle(const int x, const int y, const int map_y) {
     Paddle* paddle = (Paddle*) malloc(sizeof(Paddle));
 
     if (paddle == NULL) {
-        exit(-1);
+        printf("No more memory!\n");
+        exit(1);
     }
 
     paddle->position.x = x;
-    paddle->position.y = y;
+    paddle->position.y = map_y;
+
+    paddle->collision = createCollision(0, 0, PADDLE_WIDTH, PADDLE_HEIGHT);
 
     return paddle;
 }
 
-void destroyPaddle(Paddle** paddle) {
+void destroyPaddle(Paddle** const paddle) {
     free(*paddle);
     *paddle = NULL;
 }
 
 
 // Update / Render
-void updatePaddle(Paddle* paddle) {
-    paddle->position = getMousePos();
+void updatePaddle(Paddle* const paddle) {
+    paddle->position.x = getMousePos().x - (PADDLE_WIDTH / 2);
 }
 
-void renderPaddle(SDL_Renderer* renderer, Paddle* paddle) {
-    SDL_SetRenderDrawColor(renderer, 255, 0, 0, SDL_ALPHA_OPAQUE);
-    SDL_RenderDrawFillCircle(renderer, paddle->position.x, paddle->position.y, 20);
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
-    SDL_RenderDrawCircle(renderer, paddle->position.x, paddle->position.y, 20);
+void renderPaddle(SDL_Renderer* const renderer, const Paddle* const paddle) {
+    SDL_Rect rect = {
+        .x = paddle->position.x,
+        .y = paddle->position.y,
+        .w = PADDLE_WIDTH,
+        .h = PADDLE_HEIGHT
+    };
+
+    SDL_SetRenderDrawColor(renderer, PADDLE_COLOR_R, PADDLE_COLOR_G, PADDLE_COLOR_B, SDL_ALPHA_OPAQUE);
+    SDL_RenderFillRect(renderer, &rect);
 }

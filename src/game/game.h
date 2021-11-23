@@ -21,17 +21,19 @@ typedef struct {
     SDL_Window* window;
 
     Scene scene;
+
+    bool quit;
 } Game;
 
-Game* createGame(SDL_Renderer* renderer, SDL_Window* window, SceneChoice start_scene);
-void destroyGame(Game** game);
+Game* createGame(SDL_Renderer* const renderer, SDL_Window* const window, const SceneChoice start_scene);
+void destroyGame(Game** const game);
 
-void gameChangeScene(Game* game, SceneChoice choice);
+void gameChangeScene(Game* const game, const SceneChoice choice);
 
-void eventGame(Game* game, SDL_Event event);
-void eventClearGame(Game* game);
-bool isKeyPressed(SDL_Keycode key);
+void eventGame(Game* const game, const SDL_Event event);
+void eventClearGame(const Game* const game);
+bool isKeyPressed(const SDL_Keycode key);
 Point getMousePos();
 
-void updateGame(Game* game);
-void renderGame(Game* game);
+void updateGame(Game* const game, const double deltaTime);
+void renderGame(const Game* const game);

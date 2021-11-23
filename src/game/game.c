@@ -12,31 +12,34 @@ static unsigned int event_count;
 static Point mouse_pos;
 
 // Constructor / Deconstructor
-Game* createGame(SDL_Renderer* renderer, SDL_Window* window, SceneChoice start_scene) {
+Game* createGame(SDL_Renderer* const renderer, SDL_Window* const window, const SceneChoice start_scene) {
     Game* game = (Game*) malloc(sizeof(Game));
 
     if (game == NULL) {
-        exit(-1);
+        printf("No more memory!\n");
+        exit(1);
     }
 
     game->renderer = renderer;
     game->window = window;
+
+    game->quit = false;
 
     gameChangeScene(game, start_scene);
 
     return game;
 }
 
-void destroyGame(Game** _game) {
-    Game* game = *_game;
+void destroyGame(Game** const _game) {
+    Game* const game = (Game* const) *_game;
 
     switch (game->scene.choice) {
         case MainMenuScene: {
-            destroyMainMenu((MainMenu**) &game->scene.source);
+            destroyMainMenu((MainMenu** const) &game->scene.source);
         } break;
 
         case WorldScene: {
-            destroyWorld((World**) &game->scene.source);
+            destroyWorld((World** const) &game->scene.source);
         } break;
     }
 
@@ -49,14 +52,14 @@ void destroyGame(Game** _game) {
 
 
 // Functions
-void gameChangeScene(Game* game, SceneChoice choice) {
+void gameChangeScene(Game* const game, const SceneChoice choice) {
     game->scene.choice = choice;
 
     void* scene = NULL;
 
     switch (game->scene.choice) {
         case WorldScene: {
-            scene = createWorld();
+            scene = createWorld(game->window, NULL);
         } break;
 
         default: { // When invalid or Main, just go to the Main Menu
@@ -69,7 +72,7 @@ void gameChangeScene(Game* game, SceneChoice choice) {
 
 
 // Events
-void eventGame(Game* game, SDL_Event event) {
+void eventGame(Game* const game, const SDL_Event event) {
     if (current_events == NULL) {
         current_events = (SDL_Event*) malloc(sizeof(SDL_Event));
     } else {
@@ -77,7 +80,8 @@ void eventGame(Game* game, SDL_Event event) {
     }
 
     if (current_events == NULL) {
-        exit(-1);
+        printf("No more memory!\n");
+        exit(1);
     }
 
     current_events[event_count] = event;
@@ -89,10 +93,14 @@ void eventGame(Game* game, SDL_Event event) {
             mouse_pos.x = event.motion.x;
             mouse_pos.y = event.motion.y;
         } break;
+
+        case SDL_QUIT: {
+            game->quit = true;
+        } break;
     }
 }
 
-void eventClearGame(Game* game) {
+void eventClearGame(const Game* const game) {
     if (current_events == NULL) return;
 
     event_count = 0;
@@ -101,8 +109,8 @@ void eventClearGame(Game* game) {
     current_events = NULL;
 }
 
-bool isKeyPressed(SDL_Keycode key) {
-    for (int i = 0; i < event_count; i++) {
+bool isKeyPressed(const SDL_Keycode key) {
+    for (unsigned int i = 0; i < event_count; i++) {
         SDL_Event* event = &current_events[i];
 
         if (event->type == SDL_KEYDOWN) {
@@ -121,19 +129,19 @@ Point getMousePos() {
 
 
 // Update / Render
-void updateGame(Game* game) {
+void updateGame(Game* const game, const double deltaTime) {
     switch (game->scene.choice) {
         case MainMenuScene: {
             updateMainMenu((MainMenu*) game->scene.source);
         } break;
 
         case WorldScene: {
-            updateWorld((World*) game->scene.source);
+            updateWorld((World*) game->scene.source, deltaTime);
         } break;
     }
 }
 
-void renderGame(Game* game) {
+void renderGame(const Game* const game) {
     switch (game->scene.choice) {
         case MainMenuScene: {
             renderMainMenu(game->renderer, (MainMenu*) game->scene.source);

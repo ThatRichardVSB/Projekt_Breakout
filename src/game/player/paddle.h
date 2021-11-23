@@ -3,12 +3,20 @@
 #include <SDL.h>
 #include "../../helper/global.h"
 
+#define PADDLE_HEIGHT BLOCK_SIZE
+#define PADDLE_WIDTH (BLOCK_SIZE * 4)
+
+#define PADDLE_COLOR_R 0
+#define PADDLE_COLOR_G 175
+#define PADDLE_COLOR_B 255
+
 typedef struct {
     Point position;
+    CollisionBox collision;
 } Paddle;
 
-Paddle* createPaddle(int x, int y);
-void destroyPaddle(Paddle** paddle);
+Paddle* createPaddle(const int x, const int y, const int map_y);
+void destroyPaddle(Paddle** const paddle);
 
-void updatePaddle(Paddle* paddle);
-void renderPaddle(SDL_Renderer* renderer, Paddle* paddle);
+void updatePaddle(Paddle* const paddle);
+void renderPaddle(SDL_Renderer* const renderer, const Paddle* const paddle);

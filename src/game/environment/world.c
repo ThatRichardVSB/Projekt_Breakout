@@ -3,26 +3,38 @@
 
 #include "world.h"
 #include "map.h"
+#include "../../helper/global.h"
 #include "../player/ball.h"
 #include "../player/paddle.h"
 
 
 // Constructor / Deconstructor
-World* createWorld(FILE* mapFile) {
+World* createWorld(SDL_Window* const window, const FILE* mapFile) {
     World* world = (World*) malloc(sizeof(World));
 
     if (world == NULL) {
-        exit(-1);
+        printf("No more memory!\n");
+        exit(1);
     }
 
-    world->ball = createBall(0, 0, BALL_SPEED, BALL_SIZE);
-    world->paddle = createPaddle(0, 0);
-    world->map = createMap(mapFile);
+    unsigned win_h = 0;
+    SDL_GetWindowSize(window, NULL, &win_h);
+
+    const CollisionBox ballColl = {
+        .x = -BLOCK_SIZE / 2,
+        .y = -BLOCK_SIZE / 2,
+        .w = BLOCK_SIZE / 2,
+        .h = BLOCK_SIZE / 2
+    };
+
+    world->ball = createBall(200, 200, BALL_SPEED, ballColl);
+    world->paddle = createPaddle(0, 0, win_h - (PADDLE_BOTTOM_BLOCK_MARGIN * BLOCK_SIZE));
+    world->map = createMap(window, mapFile);
 
     return world;
 }
 
-void destroyWorld(World** _world) {
+void destroyWorld(World** const _world) {
     World* world = *_world;
 
     destroyBall(&world->ball);
@@ -35,13 +47,13 @@ void destroyWorld(World** _world) {
 
 
 // Update / Render
-void updateWorld(World* world) {
-    updateBall(world->ball);
-    updatePaddle(world->paddle);
+void updateWorld(World* const world, const double deltaTime) {
     updateMap(world->map);
+    updatePaddle(world->paddle);
+    updateBall(world->ball, world->map, world->paddle, deltaTime);
 }
 
-void renderWorld(SDL_Renderer* renderer, World* world) {
+void renderWorld(SDL_Renderer* const renderer, const World* const world) {
     renderBall(renderer, world->ball);
     renderPaddle(renderer, world->paddle);
     renderMap(renderer, world->map);

@@ -3,7 +3,7 @@
 #include "SDL.h"
 
 // -- CREDIT: https://gist.github.com/Gumichan01/332c26f6197a432db91cc4327fcabb1c
-void SDL_RenderDrawCircle(SDL_Renderer* renderer, int x, int y, int radius) {
+void SDL_RenderDrawCircle(const SDL_Renderer* const renderer, const int x, const int y, const int radius) {
     int offsetX = 0, offsetY = radius, d = radius - 1;
     int status = 0;
 
@@ -36,13 +36,13 @@ void SDL_RenderDrawCircle(SDL_Renderer* renderer, int x, int y, int radius) {
     }
 }
 
-void SDL_RenderDrawFillCircle(SDL_Renderer* renderer, int x, int y, int radius) {
-    for (int w = 0; w < radius * 2; w++) {
-        for (int h = 0; h < radius * 2; h++) {
+void SDL_RenderFillCircle(const SDL_Renderer* const renderer, const int x, const int y, const int radius) {
+    for (unsigned int w = 0; w < radius * 2; w++) {
+        for (unsigned int h = 0; h < radius * 2; h++) {
             int diff_x = radius - w;
             int diff_y = radius - h;
 
-            if ((diff_x * diff_x + diff_y * diff_y) <= (radius * radius)) {
+            if ((diff_x * diff_x + diff_y * diff_y) < (radius * radius)) {
                 SDL_RenderDrawPoint(renderer, x + diff_x, y + diff_y);
             }
         }
