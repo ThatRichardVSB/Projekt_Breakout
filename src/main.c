@@ -6,8 +6,8 @@
 #include "game/game.h"
 #include "game/environment/map.h"
 
-#define WINDOW_WIDTH (BLOCK_SIZE * 20)
-#define WINDOW_HEIGHT (BLOCK_SIZE * 30)
+#define WINDOW_WIDTH (BLOCK_SIZE * 48)
+#define WINDOW_HEIGHT (BLOCK_SIZE * 32)
 
 int main() {
     srand(time(NULL));
@@ -21,8 +21,6 @@ int main() {
         WINDOW_HEIGHT,
         SDL_WINDOW_SHOWN
     );
-
-    SDL_SetWindowResizable(window, SDL_FALSE);
 
     SDL_Renderer* renderer = SDL_CreateRenderer(
         window,
