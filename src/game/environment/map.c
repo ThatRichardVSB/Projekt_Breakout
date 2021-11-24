@@ -8,8 +8,8 @@
 const CollisionBox BlockCollision = {
     .x = 0,
     .y = 0,
-    .w = BLOCK_SIZE,
-    .h = BLOCK_SIZE
+    .w = BLOCK_WIDTH,
+    .h = BLOCK_HEIGHT
 };
 
 // Constructor / Deconstructor
@@ -26,10 +26,13 @@ Map* createMap(SDL_Window* const window, const FILE* mapFile) {
 
     SDL_GetWindowSize(window, &win_w, &win_h);
 
-    map->width = win_w / BLOCK_SIZE;
-    map->height = win_h / BLOCK_SIZE;
+    const unsigned int map_width = win_w - WALL_WIDTH * 2;
+    const unsigned int map_height = win_h - WALL_WIDTH * 2;
 
-    if (win_w % BLOCK_SIZE != 0 || win_h % BLOCK_SIZE != 0) {
+    map->width = map_width / BLOCK_WIDTH;
+    map->height = map_height / BLOCK_HEIGHT;
+
+    if (map_width % BLOCK_WIDTH != 0 || map_height % BLOCK_HEIGHT != 0) {
         printf("Invalid window size for map!\n");
         exit(1);
     }
@@ -39,25 +42,48 @@ Map* createMap(SDL_Window* const window, const FILE* mapFile) {
         map->blocks[i] = (Block*) malloc(sizeof(Block) * map->width);
     }
 
-    // Insert walls
+    map->walls = (CollisionBox*) malloc(sizeof(CollisionBox) * WALL_COUNT);
+
+    CollisionBox leftWall = {
+        .x = 0,
+        .y = WALL_WIDTH,
+        .w = WALL_WIDTH,
+        .h = map->height * BLOCK_HEIGHT
+    };
+    CollisionBox topWall = {
+        .x = 0,
+        .y = 0,
+        .w = WALL_WIDTH * 2 + map->width * BLOCK_WIDTH,
+        .h = WALL_WIDTH
+    };
+    CollisionBox rightWall = {
+        .x = WALL_WIDTH + map->width * BLOCK_WIDTH,
+        .y = 0,
+        .w = WALL_WIDTH,
+        .h = map->height * BLOCK_HEIGHT
+    };
+
+    map->walls[0] = leftWall;
+    map->walls[1] = topWall;
+    map->walls[2] = rightWall;
+
+    // Place Air
     for (unsigned int y = 0; y < map->height; y++) {
         for (unsigned int x = 0; x < map->width; x++) {
             Block block = Air;
 
-            if (x == 0 || x == map->width - 1 || y == 0) {
-                if (y == map->height - PADDLE_BOTTOM_BLOCK_MARGIN) {
-                    block = PaddleWall;
-                } else {
-                    block = Wall;
-                }
-            }
-
-            map->blocks[y][x] = block;
+            map->blocks[y][x] = Air;
         }
     }
 
     if (mapFile == NULL) { // Default Layout
+        for (unsigned int y = 1; y < 9; y++) {
+            for (unsigned int x = 1; x < map->width - 1; x++) {
+                Block block = rand() % (Red - Yellow + 1) + Yellow;
 
+                map->blocks[y][x] = block;
+            }
+        }
     } else { // Load from file
 
     }
@@ -93,24 +119,14 @@ void renderMap(SDL_Renderer* const renderer, const Map* const map) {
             if (block == Air) continue;
 
             SDL_Rect rect = {
-                .x = x * BLOCK_SIZE,
-                .y = y * BLOCK_SIZE,
-                .w = BLOCK_SIZE,
-                .h = BLOCK_SIZE
+                .x = WALL_WIDTH + x * BLOCK_WIDTH,
+                .y = WALL_WIDTH + y * BLOCK_HEIGHT,
+                .w = BLOCK_WIDTH,
+                .h = BLOCK_HEIGHT
             };
 
             int r = 255, g = 255, b = 255;
             switch (block) {
-                case Wall: {
-                    r = g = b = 125;
-                } break;
-
-                case PaddleWall: {
-                    r = PADDLE_COLOR_R;
-                    g = PADDLE_COLOR_G;
-                    b = PADDLE_COLOR_B;
-                } break;
-
                 case Yellow: {
                     r = 255;
                     g = 255;
@@ -139,5 +155,20 @@ void renderMap(SDL_Renderer* const renderer, const Map* const map) {
             SDL_SetRenderDrawColor(renderer, r, g, b, SDL_ALPHA_OPAQUE);
             SDL_RenderFillRect(renderer, &rect);
         }
+    }
+
+    for (unsigned int i = 0; i < WALL_COUNT; i++) {
+        CollisionBox* wall = &map->walls[i];
+
+        SDL_SetRenderDrawColor(renderer, 125, 125, 125, SDL_ALPHA_OPAQUE);
+
+        SDL_Rect rect = {
+            .x = wall->x,
+            .y = wall->y,
+            .w = wall->w,
+            .h = wall->h
+        };
+
+        SDL_RenderFillRect(renderer, &rect);
     }
 }

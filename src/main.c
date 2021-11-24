@@ -6,8 +6,8 @@
 #include "game/game.h"
 #include "game/environment/map.h"
 
-#define WINDOW_WIDTH (BLOCK_SIZE * 48)
-#define WINDOW_HEIGHT (BLOCK_SIZE * 32)
+#define WINDOW_WIDTH (WALL_WIDTH * 2 + BLOCK_WIDTH * 32)
+#define WINDOW_HEIGHT (WALL_WIDTH * 2 + BLOCK_HEIGHT * 20)
 
 int main() {
     srand(time(NULL));
@@ -32,13 +32,13 @@ int main() {
 
     Uint64 NOW = SDL_GetPerformanceCounter();
     Uint64 LAST = 0;
-    double deltaTime = 0;
 
-    SDL_Event event;
+    double deltaTime = 0;
     while (!game->quit) {
+        SDL_Event event;
+
         LAST = NOW;
         NOW = SDL_GetPerformanceCounter();
-
         deltaTime = (double) ((NOW - LAST) * 1000 / (double) SDL_GetPerformanceFrequency()) / 100;
 
         eventClearGame(game);

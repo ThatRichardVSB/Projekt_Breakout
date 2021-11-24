@@ -4,12 +4,14 @@
 
 #include "../../helper/global.h"
 
-#define BLOCK_SIZE 20
+#define BLOCK_HEIGHT 26
+#define BLOCK_WIDTH (BLOCK_HEIGHT * 3)
+
+#define WALL_WIDTH BLOCK_HEIGHT
+#define WALL_COUNT 3
 
 typedef enum {
     Air,
-    Wall,
-    PaddleWall,
     Yellow,
     Green,
     Orange,
@@ -17,6 +19,7 @@ typedef enum {
 } Block;
 
 typedef struct {
+    CollisionBox* walls;
     Block** blocks;
 
     unsigned int width;

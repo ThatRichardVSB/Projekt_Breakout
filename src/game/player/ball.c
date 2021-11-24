@@ -8,7 +8,7 @@
 
 
 // Constructor / Deconstructor
-Ball* createBall(const int x, const int y, const int speed, const CollisionBox collision) {
+Ball* createBall(const int x, const int y, const int speed, const unsigned int radius) {
     Ball* ball = (Ball*) malloc(sizeof(Ball));
 
     if (ball == NULL) {
@@ -23,6 +23,13 @@ Ball* createBall(const int x, const int y, const int speed, const CollisionBox c
     ball->velY = -1;//(rand() % 2) ? 1 : -1;
 
     ball->speed = speed;
+
+    CollisionBox collision = {
+        .x = -radius,
+        .y = -radius,
+        .w = radius * 2,
+        .h = radius * 2
+    };
     ball->collision = collision;
 
     return ball;
@@ -35,12 +42,9 @@ void destroyBall(Ball** const ball) {
 
 
 // Functions
-void bounceBallHorizontally(Ball* const ball) {
-    ball->velX *= -1;
-}
-
-void bounceBallVertically(Ball* const ball) {
-    ball->velY *= -1;
+void changeBallDirection(Ball* const ball, const int dirX, const int dirY) {
+    if (dirX != 0) ball->velX = (dirX < 0) ? -1 : 1;
+    if (dirY != 0) ball->velY = (dirY < 0) ? -1 : 1;
 }
 
 
@@ -63,27 +67,40 @@ void updateBall(Ball* const ball, const Map* const map, const Paddle* const padd
             if (block == Air) continue;
 
             Point blockPos = {
-                .x = x * BLOCK_SIZE,
-                .y = y * BLOCK_SIZE
+                .x = x * BLOCK_WIDTH,
+                .y = y * BLOCK_HEIGHT
             };
 
             if (isColliding(ball->position, ball->collision, blockPos, BlockCollision, &dirX, &dirY)) {
-                printf("Block collision!\n");
+                if (block >= Yellow && block <= Red) {
+                    map->blocks[y][x] = Air;
+                }
 
-                ball->speed = 0;
-
-                bounceBallHorizontally(ball);
-                bounceBallVertically(ball);
-
-                goto GO_SkipUpdateBallCheck; // !!! NOT A BAD USE OF GOTO >:( (to get out of nested loop) !!!
+                goto GO_SkipUpdateBallCheck; // !!! NOT A BAD USE OF GOTO >:( (to get out of a nested loop) !!!
             }
+        }
+    }
+
+    for (unsigned int i = 0; i < WALL_COUNT; i++) {
+        CollisionBox* wall = &map->walls[i];
+
+        Point wallPos = {
+            .x = wall->x,
+            .y = wall->y
+        };
+
+        if (isColliding(ball->position, ball->collision, wallPos, *wall, &dirX, &dirY)) {
+            goto GO_SkipUpdateBallCheck;
         }
     }
 
     GO_SkipUpdateBallCheck:
 
-    if (dirX) bounceBallHorizontally(ball);
-    if (dirY) bounceBallVertically(ball);
+    if (dirX) {
+        changeBallDirection(ball, dirX, 0);
+    } else if (dirY) {
+        changeBallDirection(ball, 0, dirY);
+    }
 
     destX = ball->position.x + (ball->velX * speed);
     destY = ball->position.y + (ball->velY * speed);
@@ -94,5 +111,7 @@ void updateBall(Ball* const ball, const Map* const map, const Paddle* const padd
 
 void renderBall(SDL_Renderer* const renderer, const Ball* const ball) {
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
-    SDL_RenderFillCircle(renderer, ball->position.x, ball->position.y, (ball->collision.w > ball->collision.h) ? ball->collision.w : ball->collision.h);
+
+    const unsigned int diameter = (ball->collision.w > ball->collision.h) ? ball->collision.w : ball->collision.h;
+    SDL_RenderFillCircle(renderer, ball->position.x, ball->position.y, diameter / 2);
 }

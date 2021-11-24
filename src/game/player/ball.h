@@ -6,7 +6,7 @@
 #include "../environment/map.h"
 #include "paddle.h"
 
-#define BALL_SPEED 10
+#define BALL_SPEED 25
 
 typedef struct {
     Point position;
@@ -19,7 +19,7 @@ typedef struct {
     CollisionBox collision;
 } Ball;
 
-Ball* createBall(const int x, const int y, const int speed, const CollisionBox collision);
+Ball* createBall(const int x, const int y, const int speed, const unsigned int radius);
 void destroyBall(Ball** const ball);
 
 void updateBall(Ball* const ball, const Map* const map, const Paddle* const paddle, const double deltaTime);

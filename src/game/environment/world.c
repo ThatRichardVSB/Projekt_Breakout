@@ -20,15 +20,8 @@ World* createWorld(SDL_Window* const window, const FILE* mapFile) {
     unsigned win_h = 0;
     SDL_GetWindowSize(window, NULL, &win_h);
 
-    const CollisionBox ballColl = {
-        .x = -BLOCK_SIZE / 2,
-        .y = -BLOCK_SIZE / 2,
-        .w = BLOCK_SIZE / 2,
-        .h = BLOCK_SIZE / 2
-    };
-
-    world->ball = createBall(200, 200, BALL_SPEED, ballColl);
-    world->paddle = createPaddle(0, 0, win_h - (PADDLE_BOTTOM_BLOCK_MARGIN * BLOCK_SIZE));
+    world->ball = createBall(200, 200, BALL_SPEED, BLOCK_HEIGHT / 2);
+    world->paddle = createPaddle(0, 0, win_h - (PADDLE_BOTTOM_BLOCK_MARGIN * BLOCK_HEIGHT));
     world->map = createMap(window, mapFile);
 
     return world;
