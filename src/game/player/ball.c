@@ -1,6 +1,7 @@
 #include <stdlib.h>
 
 #include "ball.h"
+#include "../game.h"
 #include "../../helper/global.h"
 #include "../../helper/SDL.h"
 #include "../environment/map.h"
@@ -19,8 +20,8 @@ Ball* createBall(const int x, const int y, const int speed, const unsigned int r
     ball->position.x = x;
     ball->position.y = y;
 
-    ball->velX = -1;//(rand() % 2) ? 1 : -1;
-    ball->velY = -1;//(rand() % 2) ? 1 : -1;
+    ball->velX = (rand() % 2) ? 1 : -1;
+    ball->velY = (rand() % 2) ? 1 : -1;
 
     ball->speed = speed;
 
@@ -58,39 +59,40 @@ void updateBall(Ball* const ball, const Map* const map, const Paddle* const padd
     int dirX = 0;
     int dirY = 0;
 
-    isColliding(ball->position, ball->collision, paddle->position, paddle->collision, &dirX, &dirY);
+    if (!isColliding(ball->position, ball->collision, paddle->position, paddle->collision, &dirX, &dirY)) {
+        for (unsigned int y = 0; y < map->height; y++) {
+            for (unsigned int x = 0; x < map->width; x++) {
+                Block block = map->blocks[y][x];
 
-    for (unsigned int y = 0; y < map->height; y++) {
-        for (unsigned int x = 0; x < map->width; x++) {
-            Block block = map->blocks[y][x];
+                if (block == Air) continue;
 
-            if (block == Air) continue;
+                Point blockPos = {
+                    .x = (map->walls[0].x + map->walls[0].w) + x * BLOCK_WIDTH,
+                    .y = (map->walls[1].y + map->walls[1].h) + y * BLOCK_HEIGHT
+                };
 
-            Point blockPos = {
-                .x = x * BLOCK_WIDTH,
-                .y = y * BLOCK_HEIGHT
-            };
+                if (isColliding(ball->position, ball->collision, blockPos, BlockCollision, &dirX, &dirY)) {
+                    if (block >= Yellow && block <= Red) {
+                        map->blocks[y][x] = Air;
+                    }
 
-            if (isColliding(ball->position, ball->collision, blockPos, BlockCollision, &dirX, &dirY)) {
-                if (block >= Yellow && block <= Red) {
-                    map->blocks[y][x] = Air;
+                    goto GO_SkipUpdateBallCheck; // !!! NOT A BAD USE OF GOTO >:( (to get out of a nested loop) !!!
                 }
-
-                goto GO_SkipUpdateBallCheck; // !!! NOT A BAD USE OF GOTO >:( (to get out of a nested loop) !!!
             }
         }
-    }
 
-    for (unsigned int i = 0; i < WALL_COUNT; i++) {
-        CollisionBox* wall = &map->walls[i];
+        for (unsigned int i = 0; i < WALL_COUNT; i++) {
+            CollisionBox* wall = &map->walls[i];
 
-        Point wallPos = {
-            .x = wall->x,
-            .y = wall->y
-        };
+            Point wallPos = {
+                .x = wall->x,
+                .y = wall->y
+            };
 
-        if (isColliding(ball->position, ball->collision, wallPos, *wall, &dirX, &dirY)) {
-            goto GO_SkipUpdateBallCheck;
+            if (isColliding(ball->position, ball->collision, wallPos, *wall, &dirX, &dirY)) {
+                printf("Collision!");
+                goto GO_SkipUpdateBallCheck;
+            }
         }
     }
 
@@ -104,6 +106,9 @@ void updateBall(Ball* const ball, const Map* const map, const Paddle* const padd
 
     destX = ball->position.x + (ball->velX * speed);
     destY = ball->position.y + (ball->velY * speed);
+
+    destX = getMousePos().x;
+    destY = getMousePos().y;
 
     ball->position.x = destX;
     ball->position.y = destY;

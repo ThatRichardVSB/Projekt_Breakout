@@ -6,7 +6,7 @@
 #include "game/game.h"
 #include "game/environment/map.h"
 
-#define WINDOW_WIDTH (WALL_WIDTH * 2 + BLOCK_WIDTH * 32)
+#define WINDOW_WIDTH (WALL_WIDTH * 2 + BLOCK_WIDTH * 14)
 #define WINDOW_HEIGHT (WALL_WIDTH * 2 + BLOCK_HEIGHT * 20)
 
 int main() {

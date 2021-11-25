@@ -15,4 +15,4 @@ typedef struct {
 } CollisionBox;
 
 CollisionBox createCollision(const int x, const int y, const unsigned int w, const unsigned int h);
-bool isColliding(Point point1, CollisionBox collision1, Point point2, CollisionBox collision2, int* horizontalDir, int* verticalDir);
+bool isColliding(const Point p1, const CollisionBox col1, const Point p2, const CollisionBox col2, int* const horDir, int* const verDir);

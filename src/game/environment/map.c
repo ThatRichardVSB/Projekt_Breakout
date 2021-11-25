@@ -44,23 +44,23 @@ Map* createMap(SDL_Window* const window, const FILE* mapFile) {
 
     map->walls = (CollisionBox*) malloc(sizeof(CollisionBox) * WALL_COUNT);
 
-    CollisionBox leftWall = {
-        .x = 0,
-        .y = WALL_WIDTH,
-        .w = WALL_WIDTH,
-        .h = map->height * BLOCK_HEIGHT
-    };
     CollisionBox topWall = {
         .x = 0,
-        .y = 0,
+        .y = WALL_WIDTH * 3,
         .w = WALL_WIDTH * 2 + map->width * BLOCK_WIDTH,
         .h = WALL_WIDTH
     };
-    CollisionBox rightWall = {
-        .x = WALL_WIDTH + map->width * BLOCK_WIDTH,
-        .y = 0,
+    CollisionBox leftWall = {
+        .x = 0,
+        .y = topWall.y + topWall.h,
         .w = WALL_WIDTH,
-        .h = map->height * BLOCK_HEIGHT
+        .h = map->height * BLOCK_HEIGHT - topWall.y
+    };
+    CollisionBox rightWall = {
+        .x = (leftWall.x + leftWall.w) + map->width * BLOCK_WIDTH,
+        .y = topWall.y + topWall.h,
+        .w = WALL_WIDTH,
+        .h = map->height * BLOCK_HEIGHT - topWall.y
     };
 
     map->walls[0] = leftWall;
@@ -77,12 +77,13 @@ Map* createMap(SDL_Window* const window, const FILE* mapFile) {
     }
 
     if (mapFile == NULL) { // Default Layout
-        for (unsigned int y = 1; y < 9; y++) {
-            for (unsigned int x = 1; x < map->width - 1; x++) {
-                Block block = rand() % (Red - Yellow + 1) + Yellow;
-
-                map->blocks[y][x] = block;
+        Block block = Red;
+        for (unsigned int y = 0; y < 4 * 2; y++) {
+            for (unsigned int x = 0; x < map->width; x++) {
+                //map->blocks[y][x] = block;
             }
+
+            if (y != 0 && (y + 1) % 2 == 0) block--;
         }
     } else { // Load from file
 
@@ -119,8 +120,8 @@ void renderMap(SDL_Renderer* const renderer, const Map* const map) {
             if (block == Air) continue;
 
             SDL_Rect rect = {
-                .x = WALL_WIDTH + x * BLOCK_WIDTH,
-                .y = WALL_WIDTH + y * BLOCK_HEIGHT,
+                .x = (map->walls[0].x + map->walls[0].w) + x * BLOCK_WIDTH,
+                .y = (map->walls[1].y + map->walls[1].h) + WALL_WIDTH + y * BLOCK_HEIGHT,
                 .w = BLOCK_WIDTH,
                 .h = BLOCK_HEIGHT
             };

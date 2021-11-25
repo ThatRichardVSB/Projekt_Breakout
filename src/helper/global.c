@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 
@@ -15,16 +16,19 @@ CollisionBox createCollision(const int x, const int y, const unsigned int w, con
     return collision;
 }
 
-bool isColliding(Point point1, CollisionBox collision1, Point point2, CollisionBox collision2, int* horizontalDir, int* verticalDir) {
-    const int startX = (int) point1.x + collision1.x;
-    const int startY = (int) point1.y + collision1.y;
-    const int startEndX = startX + collision1.w;
-    const int startEndY = startY + collision1.h;
+bool isColliding(const Point p1, const CollisionBox col1, const Point p2, const CollisionBox col2, int* const horDir, int* const verDir) {
+    printf("\nP1: %d %d\n", (int) p1.x, (int) p1.y);
+    printf("P2: %d %d\n", (int) p2.x, (int) p2.y);
 
-    const int endX = (int) point2.x + collision2.x;
-    const int endY = (int) point2.y + collision2.y;
-    const int endEndX = endX + collision2.w;
-    const int endEndY = endY + collision2.h;
+    const int startX = (int) p1.x + col1.x;
+    const int startY = (int) p1.y + col1.y;
+    const int startEndX = startX + col1.w;
+    const int startEndY = startY + col1.h;
+
+    const int endX = (int) p2.x + col2.x;
+    const int endY = (int) p2.y + col2.y;
+    const int endEndX = endX + col2.w;
+    const int endEndY = endY + col2.h;
 
     if (startX < endEndX &&
         startEndX > endX &&
@@ -56,13 +60,13 @@ bool isColliding(Point point1, CollisionBox collision1, Point point2, CollisionB
             if (diffY != 0) dirY = 1;
         }
 
-        if (diffX > diffY && horizontalDir != NULL) {
-            *horizontalDir = dirX;
-        } else if (diffY > diffX && verticalDir != NULL) {
-            *verticalDir = dirY;
-        } else if (diffX == diffY && horizontalDir != NULL && verticalDir != NULL) {
-            *horizontalDir = dirX;
-            *verticalDir = dirY;
+        if (diffX > diffY && horDir != NULL) {
+            *horDir = dirX;
+        } else if (diffY > diffX && verDir != NULL) {
+            *verDir = dirY;
+        } else if (diffX == diffY && horDir != NULL && verDir != NULL) {
+            *horDir = dirX;
+            *verDir = dirY;
         }
 
         return true;
