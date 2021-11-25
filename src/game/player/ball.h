@@ -7,6 +7,9 @@
 #include "paddle.h"
 
 #define BALL_SPEED 25
+#define BALL_RADIUS (BLOCK_HEIGHT / 2)
+
+#define BALL_SPAWN_HEIGHT (BLOCK_HEIGHT * 2)
 
 typedef struct {
     Point position;
@@ -22,7 +25,7 @@ typedef struct {
 Ball* createBall(const int x, const int y, const int speed, const unsigned int radius);
 void destroyBall(Ball** const ball);
 
-void updateBall(Ball* const ball, const Map* const map, const Paddle* const paddle, const double deltaTime);
+void updateBall(Ball* const ball, const Map* const map, const Paddle* const paddle, Block* const destroyedBlock, const double deltaTime);
 
 void bounceBallHorizontally(Ball* const ball);
 void bounceBallVertically(Ball* const ball);

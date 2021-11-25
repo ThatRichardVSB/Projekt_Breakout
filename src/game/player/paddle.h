@@ -4,7 +4,7 @@
 #include "../../helper/global.h"
 
 #define PADDLE_HEIGHT BLOCK_HEIGHT
-#define PADDLE_WIDTH BLOCK_WIDTH
+#define PADDLE_WIDTH BLOCK_WIDTH * 2
 
 #define PADDLE_COLOR_R 0
 #define PADDLE_COLOR_G 175

@@ -18,12 +18,14 @@ Paddle* createPaddle(const int x, const int y, const int map_y) {
     paddle->position.x = x;
     paddle->position.y = map_y;
 
-    paddle->collision = createCollision(0, 0, PADDLE_WIDTH, PADDLE_HEIGHT);
+    paddle->collision = createCollision(-PADDLE_WIDTH / 2, 0, PADDLE_WIDTH, PADDLE_HEIGHT);
 
     return paddle;
 }
 
 void destroyPaddle(Paddle** const paddle) {
+    if (paddle == NULL) return;
+
     free(*paddle);
     *paddle = NULL;
 }
@@ -31,12 +33,16 @@ void destroyPaddle(Paddle** const paddle) {
 
 // Update / Render
 void updatePaddle(Paddle* const paddle) {
-    paddle->position.x = getMousePos().x - (PADDLE_WIDTH / 2);
+    if (paddle == NULL) return;
+
+    paddle->position.x = getMousePos().x;
 }
 
 void renderPaddle(SDL_Renderer* const renderer, const Paddle* const paddle) {
+    if (paddle == NULL) return;
+
     SDL_Rect rect = {
-        .x = paddle->position.x,
+        .x = paddle->position.x - PADDLE_WIDTH / 2,
         .y = paddle->position.y,
         .w = PADDLE_WIDTH,
         .h = PADDLE_HEIGHT

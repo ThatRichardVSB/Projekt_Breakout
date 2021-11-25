@@ -33,6 +33,7 @@ void gameChangeScene(Game* const game, const SceneChoice choice);
 void eventGame(Game* const game, const SDL_Event event);
 void eventClearGame(const Game* const game);
 bool isKeyPressed(const SDL_Keycode key);
+bool isMousePressed(const int button);
 Point getMousePos();
 
 void updateGame(Game* const game, const double deltaTime);

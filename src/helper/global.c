@@ -17,9 +17,6 @@ CollisionBox createCollision(const int x, const int y, const unsigned int w, con
 }
 
 bool isColliding(const Point p1, const CollisionBox col1, const Point p2, const CollisionBox col2, int* const horDir, int* const verDir) {
-    printf("\nP1: %d %d\n", (int) p1.x, (int) p1.y);
-    printf("P2: %d %d\n", (int) p2.x, (int) p2.y);
-
     const int startX = (int) p1.x + col1.x;
     const int startY = (int) p1.y + col1.y;
     const int startEndX = startX + col1.w;

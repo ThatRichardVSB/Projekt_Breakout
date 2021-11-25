@@ -31,6 +31,8 @@ Game* createGame(SDL_Renderer* const renderer, SDL_Window* const window, const S
 }
 
 void destroyGame(Game** const _game) {
+    if (_game == NULL) return;
+
     Game* const game = (Game* const) *_game;
 
     switch (game->scene.choice) {
@@ -59,7 +61,7 @@ void gameChangeScene(Game* const game, const SceneChoice choice) {
 
     switch (game->scene.choice) {
         case WorldScene: {
-            scene = createWorld(game->window, NULL);
+            scene = createWorld(game, NULL);
         } break;
 
         default: { // When invalid or Main, just go to the Main Menu
@@ -123,6 +125,20 @@ bool isKeyPressed(const SDL_Keycode key) {
     return false;
 }
 
+bool isMousePressed(const int button) {
+    for (unsigned int i = 0; i < event_count; i++) {
+        SDL_Event* event = &current_events[i];
+
+        if (event->type == SDL_MOUSEBUTTONDOWN) {
+            if (event->button.button == button) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 Point getMousePos() {
     return mouse_pos;
 }
@@ -130,6 +146,8 @@ Point getMousePos() {
 
 // Update / Render
 void updateGame(Game* const game, const double deltaTime) {
+    if (game == NULL) return;
+
     switch (game->scene.choice) {
         case MainMenuScene: {
             updateMainMenu((MainMenu*) game->scene.source);
