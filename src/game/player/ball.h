@@ -14,8 +14,8 @@
 typedef struct {
     Point position;
 
-    int velX;
-    int velY;
+    float velX;
+    float velY;
 
     int speed;
 

@@ -96,16 +96,22 @@ void updateWorld(World* const world, const double deltaTime) {
         unsigned int win_h = 0;
         SDL_GetWindowSize(world->game->window, NULL, &win_h);
 
-        if (world->ball->position.y > win_h + BALL_RADIUS) {
+        if (world->ball->position.y > win_h + BALL_RADIUS) { // When the ball goes below the screen
             world->state = Idle;
 
             destroyBall(&world->ball);
 
             world->turns--;
+
+            if (world->turns <= 0) {
+                world->state = Lost;
+
+                resetWorld(world);
+            }
         }
     }
 
-    if (getBlockCountMap(world->map) == 0) {
+    if (destroyedBlock != Air && getBlockCountMap(world->map) == 0) { // When no blocks are on the map anymore
         if (world->screensLeft > 0) {
             world->screensLeft--;
 
@@ -114,10 +120,6 @@ void updateWorld(World* const world, const double deltaTime) {
         } else {
             world->state = Won;
         }
-    } else if (world->turns <= 0) {
-        world->state = Lost;
-
-        resetWorld(world);
     }
 
     system("clear");

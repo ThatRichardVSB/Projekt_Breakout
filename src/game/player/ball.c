@@ -20,7 +20,7 @@ Ball* createBall(const int x, const int y, const int speed, const unsigned int r
     ball->position.x = x;
     ball->position.y = y;
 
-    ball->velX = (rand() % 2) ? 1 : -1;
+    ball->velX = 0;//(rand() % 2) ? 1 : -1;
     ball->velY = 1;
 
     ball->speed = speed;
@@ -63,6 +63,8 @@ void updateBall(Ball* const ball, const Map* const map, const Paddle* const padd
     int dirX = 0;
     int dirY = 0;
 
+    float dirXScale = 1, dirYScale = 1;
+
     if (!isColliding(ball->position, ball->collision, paddle->position, paddle->collision, &dirX, &dirY)) {
         Point wallOrigin = {
             .x = 0,
@@ -101,11 +103,17 @@ void updateBall(Ball* const ball, const Map* const map, const Paddle* const padd
         }
     } else { // Collided with paddle - special logic
         dirX = (paddle->position.x < ball->position.x) ? 1 : -1;
+
+        const float maxRange = paddle->collision.w / 2.0;
+        const float range = abs(paddle->position.x - ball->position.x);
+        dirXScale = (range / maxRange) + 0.5;
     }
 
     GO_SkipUpdateBallCollCheck: // !!! NOT A BAD USE OF GOTO >:( (to get out of a nested loop) !!!
 
     changeBallDirection(ball, dirX, dirY);
+    ball->velX *= dirXScale;
+    ball->velY *= dirYScale;
 
     destX = ball->position.x + (ball->velX * speed);
     destY = ball->position.y + (ball->velY * speed);
