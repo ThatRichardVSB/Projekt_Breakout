@@ -8,4 +8,4 @@ file(GLOB_RECURSE BREAKOUT_SOURCE "src/*.c")
 
 add_executable(${PROJECT_NAME} ${BREAKOUT_SOURCE})
 
-target_link_libraries(${PROJECT_NAME} SDL2main SDL2)
+target_link_libraries(${PROJECT_NAME} SDL2main SDL2_ttf SDL2)
