@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <math.h>
 
 #include "ball.h"
 #include "../game.h"
@@ -115,8 +116,10 @@ void updateBall(Ball* const ball, const Map* const map, const Paddle* const padd
     ball->velX *= dirXScale;
     ball->velY *= dirYScale;
 
-    destX = ball->position.x + (ball->velX * speed);
-    destY = ball->position.y + (ball->velY * speed);
+    const double normalizeLength = sqrt(ball->velX * ball->velX + ball->velY * ball->velY);
+
+    destX = ball->position.x + (ball->velX / normalizeLength * speed);
+    destY = ball->position.y + (ball->velY / normalizeLength * speed);
 
     ball->position.x = destX;
     ball->position.y = destY;

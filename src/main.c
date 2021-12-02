@@ -7,6 +7,8 @@
 #include "game/game.h"
 #include "game/environment/map.h"
 
+extern TTF_Font* font;
+
 #define WINDOW_WIDTH (WALL_WIDTH * 2 + BLOCK_WIDTH * 14)
 #define WINDOW_HEIGHT (WALL_WIDTH * 2 + BLOCK_HEIGHT * 26)
 
@@ -14,7 +16,6 @@ int main() {
     srand(time(NULL));
 
     SDL_Init(SDL_INIT_VIDEO);
-    TTF_Init();
 
     SDL_Window* window = SDL_CreateWindow(
         "Breakout",
@@ -31,14 +32,6 @@ int main() {
     );
 
     Game* game = createGame(renderer, window, WorldScene);
-
-    // TODO Packagenout font do exečka?
-    /*TTF_Font* font = TTF_OpenFont("./arial.ttf", 24);
-
-    if (font == NULL) {
-        printf("Failed to load font\n");
-        exit(1);
-    }*/
 
     Uint64 NOW = SDL_GetPerformanceCounter();
     Uint64 LAST = 0;
@@ -68,8 +61,6 @@ int main() {
     }
 
     destroyGame(&game);
-
-    TTF_Quit();
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
