@@ -2,9 +2,13 @@
 #include <stdbool.h>
 #include <time.h>
 #include <SDL.h>
+#include <SDL_ttf.h>
 
+#include "helper/global.h"
 #include "game/game.h"
 #include "game/environment/map.h"
+
+TTF_Font* font;
 
 #define WINDOW_WIDTH (WALL_WIDTH * 2 + BLOCK_WIDTH * 14)
 #define WINDOW_HEIGHT (WALL_WIDTH * 2 + BLOCK_HEIGHT * 26)
@@ -13,6 +17,7 @@ int main() {
     srand(time(NULL));
 
     SDL_Init(SDL_INIT_VIDEO);
+    TTF_Init();
 
     SDL_Window* window = SDL_CreateWindow(
         "Breakout",
@@ -27,6 +32,8 @@ int main() {
         -1,
         SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
     );
+
+    font = TTF_OpenFont("arial.ttf", 25);
 
     Game* game = createGame(renderer, window, WorldScene);
 
@@ -58,6 +65,9 @@ int main() {
     }
 
     destroyGame(&game);
+
+    TTF_CloseFont(font);
+    TTF_Quit();
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);

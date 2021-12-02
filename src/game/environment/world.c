@@ -1,4 +1,5 @@
 #include <SDL.h>
+#include <SDL_ttf.h>
 #include <stdlib.h>
 
 #include "../game.h"
@@ -8,6 +9,7 @@
 #include "../player/ball.h"
 #include "../player/paddle.h"
 
+TTF_Font* font;
 
 // Constructor / Deconstructor
 World* createWorld(Game* const game, FILE* const mapFile) {
@@ -133,4 +135,14 @@ void renderWorld(SDL_Renderer* const renderer, const World* const world) {
     renderBall(renderer, world->ball);
     renderPaddle(renderer, world->paddle);
     renderMap(renderer, world->map);
+
+    /*SDL_Color color = { 255, 255, 255 };
+    SDL_Surface* surface = TTF_RenderText_Solid(font,
+        "Welcome to Gigi Labs", color);
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+
+    SDL_RenderCopy(renderer, texture, NULL, NULL);
+
+    SDL_DestroyTexture(texture);
+    SDL_FreeSurface(surface);*/
 }

@@ -49,9 +49,9 @@ Map* createMap(SDL_Window* const window, const FILE* mapFile) {
 
     CollisionBox topWall = {
         .x = 0,
-        .y = WALL_WIDTH * 3,
+        .y = 0,
         .w = WALL_WIDTH * 2 + map->width * BLOCK_WIDTH,
-        .h = WALL_WIDTH
+        .h = WALL_WIDTH * 4
     };
 
     const int horWallY = topWall.y + topWall.h;
