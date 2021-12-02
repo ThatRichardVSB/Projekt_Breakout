@@ -17,7 +17,13 @@ Map* createMap(SDL_Window* const window, const FILE* mapFile) {
     Map* map = (Map*) malloc(sizeof(Map));
 
     if (map == NULL) {
-        printf("No more memory!\n");
+        exit(1);
+    }
+
+    // Create space for walls and create those walls
+    map->walls = (CollisionBox*) malloc(sizeof(CollisionBox) * WALL_COUNT);
+
+    if (map->walls == NULL) {
         exit(1);
     }
 
@@ -28,9 +34,16 @@ Map* createMap(SDL_Window* const window, const FILE* mapFile) {
     SDL_GetWindowSize(window, &win_w, &win_h);
 
     const unsigned int map_width = win_w - WALL_WIDTH * 2;
-    const unsigned int map_height = win_h - WALL_WIDTH * 2;
-
     map->width = map_width / BLOCK_WIDTH;
+
+    CollisionBox topWall = {
+        .x = 0,
+        .y = 0,
+        .w = WALL_WIDTH * 2 + map->width * BLOCK_WIDTH,
+        .h = WALL_WIDTH * 4
+    };
+
+    const unsigned int map_height = win_h - (topWall.y + topWall.h);
     map->height = map_height / BLOCK_HEIGHT;
 
     if (map_width % BLOCK_WIDTH != 0 || map_height % BLOCK_HEIGHT != 0) {
@@ -40,22 +53,22 @@ Map* createMap(SDL_Window* const window, const FILE* mapFile) {
 
     // Create space for blocks
     map->blocks = (Block**) malloc(sizeof(Block*) * map->height);
-    for (unsigned int i = 0; i < map->height; i++) {
-        map->blocks[i] = (Block*) malloc(sizeof(Block) * map->width);
+
+    if (map->blocks == NULL) {
+        exit(1);
     }
 
-    // Create space for walls and create those walls
-    map->walls = (CollisionBox*) malloc(sizeof(CollisionBox) * WALL_COUNT);
+    for (unsigned int i = 0; i < map->height; i++) {
+        map->blocks[i] = (Block*) malloc(sizeof(Block) * map->width);
 
-    CollisionBox topWall = {
-        .x = 0,
-        .y = 0,
-        .w = WALL_WIDTH * 2 + map->width * BLOCK_WIDTH,
-        .h = WALL_WIDTH * 4
-    };
+        if (map->blocks[i] == NULL) {
+            exit(1);
+        }
+    }
 
+    // Put horizontal walls after making space for blocks
     const int horWallY = topWall.y + topWall.h;
-    const int horWallHeight = map->height * BLOCK_HEIGHT - topWall.y;
+    const int horWallHeight = map->height * BLOCK_HEIGHT - WALL_WIDTH;
 
     CollisionBox leftWall = {
         .x = 0,
@@ -64,7 +77,7 @@ Map* createMap(SDL_Window* const window, const FILE* mapFile) {
         .h = horWallHeight
     };
     CollisionBox rightWall = {
-        .x = (leftWall.x + leftWall.w) + map->width * BLOCK_WIDTH,
+        .x = (leftWall.x + leftWall.w) + (map->width * BLOCK_WIDTH),
         .y = horWallY,
         .w = WALL_WIDTH,
         .h = horWallHeight
@@ -83,14 +96,15 @@ Map* createMap(SDL_Window* const window, const FILE* mapFile) {
 void destroyMap(Map** const _map) {
     if (_map == NULL) return;
 
-    Map* map = (Map* const) *_map;
+    Map* const map = *_map;
 
-    for (int i = 0; i < map->height; i++) {
-        free(map->blocks[i]);
-        map->blocks[i] = NULL;
+    if (map == NULL) return;
+
+    if (map->blocks != NULL) {
+        free(map->blocks);
+
+        map->blocks = NULL;
     }
-    free(map->blocks);
-    map->blocks = NULL;
 
     free(map);
     *_map = NULL;
@@ -113,7 +127,8 @@ void generateMap(Map* const map, const FILE* const mapFile) {
                 map->blocks[y][x] = block;
             }
 
-            if ((y - MAP_START_Y) != 0 && ((y - MAP_START_Y) + 1) % 2 == 0) block -= (Red - Orange);
+            const int offsetY = y - MAP_START_Y;
+            if (offsetY != 0 && (offsetY + 1) % 2 == 0) block -= (Red - Orange);
         }
     } else { // Load from file
 

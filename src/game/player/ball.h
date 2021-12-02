@@ -25,9 +25,8 @@ typedef struct {
 Ball* createBall(const int x, const int y, const int speed, const unsigned int radius);
 void destroyBall(Ball** const ball);
 
-void updateBall(Ball* const ball, const Map* const map, const Paddle* const paddle, Block* const destroyedBlock, const double deltaTime);
-
 void bounceBallHorizontally(Ball* const ball);
 void bounceBallVertically(Ball* const ball);
 
+void updateBall(Ball* const ball, const Map* const map, const Paddle* const paddle, Block* const destroyedBlock, const double deltaTime);
 void renderBall(SDL_Renderer* const renderer, const Ball* const ball);

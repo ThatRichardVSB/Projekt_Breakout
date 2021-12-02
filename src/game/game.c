@@ -4,24 +4,31 @@
 #include "../helper/global.h"
 #include "menus/main_menu.h"
 #include "environment/world.h"
+#include "../resources/resource_manager.h"
 #include "game.h"
 
-static SDL_Event* current_events;
-static unsigned int event_count;
+static SDL_Event* current_events = NULL;
+static unsigned int event_count = 0;
 
-static Point mouse_pos;
+static SDL_Keycode* keys_pressed = NULL;
+static unsigned int key_count = 0;
+
+static Point mouse_pos = {
+    .x = 0,
+    .y = 0
+};
 
 // Constructor / Deconstructor
-Game* createGame(SDL_Renderer* const renderer, SDL_Window* const window, const SceneChoice start_scene) {
+Game* createGame(SDL_Renderer* const renderer, SDL_Window* const window, ResourceManager* const resources, const SceneChoice start_scene) {
     Game* game = (Game*) malloc(sizeof(Game));
 
     if (game == NULL) {
-        printf("No more memory!\n");
         exit(1);
     }
 
     game->renderer = renderer;
     game->window = window;
+    game->resources = resources;
 
     game->quit = false;
 
@@ -33,17 +40,23 @@ Game* createGame(SDL_Renderer* const renderer, SDL_Window* const window, const S
 void destroyGame(Game** const _game) {
     if (_game == NULL) return;
 
-    Game* const game = (Game* const) *_game;
+    Game* const game = *_game;
 
-    switch (game->scene.choice) {
-        case MainMenuScene: {
-            destroyMainMenu((MainMenu** const) &game->scene.source);
-        } break;
+    if (game == NULL) return;
 
-        case WorldScene: {
-            destroyWorld((World** const) &game->scene.source);
-        } break;
+    if (game->scene.source != NULL) {
+        switch (game->scene.choice) {
+            case MainMenuScene: {
+                destroyMainMenu((MainMenu** const) &game->scene.source);
+            } break;
+
+            case WorldScene: {
+                destroyWorld((World** const) &game->scene.source);
+            } break;
+        }
     }
+
+    destroyResourceManager(&game->resources);
 
     free(game);
     *_game = NULL;
@@ -82,7 +95,6 @@ void eventGame(Game* const game, const SDL_Event event) {
     }
 
     if (current_events == NULL) {
-        printf("No more memory!\n");
         exit(1);
     }
 
@@ -99,6 +111,57 @@ void eventGame(Game* const game, const SDL_Event event) {
         case SDL_QUIT: {
             game->quit = true;
         } break;
+
+        case SDL_KEYDOWN: {
+            bool found = false;
+            for (unsigned int i = 0; i < key_count; i++) {
+                if (keys_pressed[i] == event.key.keysym.sym) {
+                    found = true;
+                }
+            }
+
+            if (!found) {
+                unsigned int index = key_count;
+                size_t mSize = sizeof(SDL_Keycode) * ++key_count;
+
+                if (keys_pressed == NULL) {
+                    keys_pressed = (SDL_Keycode*) malloc(mSize);
+                } else {
+                    keys_pressed = (SDL_Keycode*) realloc(keys_pressed, mSize);
+                }
+
+                if (keys_pressed == NULL) {
+                    exit(1);
+                }
+
+                keys_pressed[index] = event.key.keysym.sym;
+            }
+        } break;
+
+        case SDL_KEYUP: {
+            for (unsigned int i = 0; i < key_count; i++) {
+                if (keys_pressed[i] == event.key.keysym.sym) {
+                    for (unsigned int j = i; j < key_count - 1; j++) {
+                        keys_pressed[j] = keys_pressed[j + 1];
+                    }
+
+                    size_t mSize = sizeof(SDL_Keycode) * --key_count;
+
+                    if (mSize <= 0) {
+                        free(keys_pressed);
+                        keys_pressed = NULL;
+                    } else {
+                        keys_pressed = (SDL_Keycode*) realloc(keys_pressed, mSize);
+
+                        if (keys_pressed == NULL) {
+                            exit(1);
+                        }
+                    }
+
+                    break;
+                }
+            }
+        } break;
     }
 }
 
@@ -112,13 +175,9 @@ void eventClearGame(const Game* const game) {
 }
 
 bool isKeyPressed(const SDL_Keycode key) {
-    for (unsigned int i = 0; i < event_count; i++) {
-        SDL_Event* event = &current_events[i];
-
-        if (event->type == SDL_KEYDOWN) {
-            if (event->key.keysym.sym == key) {
-                return true;
-            }
+    for (unsigned int i = 0; i < key_count; i++) {
+        if (keys_pressed[i] == key) {
+            return true;
         }
     }
 

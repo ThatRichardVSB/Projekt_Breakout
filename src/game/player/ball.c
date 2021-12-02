@@ -14,7 +14,6 @@ Ball* createBall(const int x, const int y, const int speed, const unsigned int r
     Ball* ball = (Ball*) malloc(sizeof(Ball));
 
     if (ball == NULL) {
-        printf("No more memory!\n");
         exit(1);
     }
 
