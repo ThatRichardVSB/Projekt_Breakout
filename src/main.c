@@ -4,6 +4,7 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
+#include "helper/global.h"
 #include "game/game.h"
 #include "game/environment/map.h"
 
@@ -30,6 +31,8 @@ int main() {
         -1,
         SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
     );
+
+    font = TTF_OpenFont("arial.ttf", 25);
 
     Game* game = createGame(renderer, window, WorldScene);
 
@@ -61,6 +64,9 @@ int main() {
     }
 
     destroyGame(&game);
+
+    TTF_CloseFont(font);
+    TTF_Quit();
 
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
