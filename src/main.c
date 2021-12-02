@@ -37,6 +37,14 @@ int main() {
 
     Game* game = createGame(renderer, window, WorldScene);
 
+    // TODO Packagenout font do exečka?
+    /*TTF_Font* font = TTF_OpenFont("./arial.ttf", 24);
+
+    if (font == NULL) {
+        printf("Failed to load font\n");
+        exit(1);
+    }*/
+
     Uint64 NOW = SDL_GetPerformanceCounter();
     Uint64 LAST = 0;
 
