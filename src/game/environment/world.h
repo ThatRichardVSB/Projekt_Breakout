@@ -3,10 +3,10 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
-#include "../game.h"
 #include "map.h"
 #include "../player/ball.h"
 #include "../player/paddle.h"
+#include "../game.h"
 
 #define PADDLE_BOTTOM_BLOCK_MARGIN 2
 #define MAX_TURNS 3

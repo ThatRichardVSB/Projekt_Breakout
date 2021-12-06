@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
     );
 
     ResourceManager* resources = createResourceManager();
-    Game* game = createGame(renderer, window, resources, WorldScene, argc, argv);
+    Game* game = createGame(renderer, window, resources, argc, argv);
 
     Uint64 NOW = SDL_GetPerformanceCounter();
     Uint64 LAST = 0;

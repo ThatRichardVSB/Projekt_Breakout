@@ -7,23 +7,13 @@
 #include "../helper/global.h"
 #include "game.h"
 
-typedef enum {
-    MainMenuScene,
-    WorldScene
-} SceneChoice;
-
-typedef struct {
-    SceneChoice choice;
-    void* source;
-} Scene;
-
 typedef struct {
     SDL_Renderer* renderer;
     SDL_Window* window;
 
     ResourceManager* resources;
 
-    Scene scene;
+    void* world;
 
     int argc;
     char** argv;
@@ -31,10 +21,8 @@ typedef struct {
     bool quit;
 } Game;
 
-Game* createGame(SDL_Renderer* const renderer, SDL_Window* const window, ResourceManager* const resources, const SceneChoice start_scene, int argc, char** argv);
+Game* createGame(SDL_Renderer* const renderer, SDL_Window* const window, ResourceManager* const resources, int argc, char** argv);
 void destroyGame(Game** const game);
-
-void gameChangeScene(Game* const game, const SceneChoice choice);
 
 void eventGame(Game* const game, const SDL_Event event);
 void eventClearGame(const Game* const game);

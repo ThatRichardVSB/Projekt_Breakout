@@ -2,7 +2,6 @@
 #include <stdbool.h>
 
 #include "../helper/global.h"
-#include "menus/main_menu.h"
 #include "environment/world.h"
 #include "../resources/resource_manager.h"
 #include "game.h"
@@ -21,7 +20,7 @@ static Point mouse_pos = {
 };
 
 // Constructor / Deconstructor
-Game* createGame(SDL_Renderer* const renderer, SDL_Window* const window, ResourceManager* const resources, const SceneChoice start_scene, int argc, char** argv) {
+Game* createGame(SDL_Renderer* const renderer, SDL_Window* const window, ResourceManager* const resources, int argc, char** argv) {
     Game* game = (Game*) malloc(sizeof(Game));
 
     if (game == NULL) {
@@ -37,7 +36,12 @@ Game* createGame(SDL_Renderer* const renderer, SDL_Window* const window, Resourc
     game->argc = argc;
     game->argv = argv;
 
-    gameChangeScene(game, start_scene);
+    char* map = NULL;
+    if (game->argc >= 2) {
+        map = game->argv[1];
+    }
+
+    game->world = createWorld(game, map);
 
     return game;
 }
@@ -49,17 +53,7 @@ void destroyGame(Game** const _game) {
 
     if (game == NULL) return;
 
-    if (game->scene.source != NULL) {
-        switch (game->scene.choice) {
-            case MainMenuScene: {
-                destroyMainMenu((MainMenu** const) &game->scene.source);
-            } break;
-
-            case WorldScene: {
-                destroyWorld((World** const) &game->scene.source);
-            } break;
-        }
-    }
+    destroyWorld((World** const) &game->world);
 
     destroyResourceManager(&game->resources);
 
@@ -68,31 +62,6 @@ void destroyGame(Game** const _game) {
 
     free(current_events);
     current_events = NULL;
-}
-
-
-// Functions
-void gameChangeScene(Game* const game, const SceneChoice choice) {
-    game->scene.choice = choice;
-
-    void* scene = NULL;
-
-    switch (game->scene.choice) {
-        case WorldScene: {
-            char* map = NULL;
-            if (game->argc >= 2) {
-                map = game->argv[1];
-            }
-
-            scene = createWorld(game, map);
-        } break;
-
-        default: { // When invalid or Main, just go to the Main Menu
-            scene = createMainMenu(game);
-        }
-    }
-
-    game->scene.source = scene;
 }
 
 
@@ -245,25 +214,11 @@ Point getMousePos() {
 void updateGame(Game* const game, const double deltaTime) {
     if (game == NULL) return;
 
-    switch (game->scene.choice) {
-        case MainMenuScene: {
-            updateMainMenu((MainMenu*) game->scene.source);
-        } break;
-
-        case WorldScene: {
-            updateWorld((World*) game->scene.source, deltaTime);
-        } break;
-    }
+    updateWorld((World*) game->world, deltaTime);
 }
 
 void renderGame(const Game* const game) {
-    switch (game->scene.choice) {
-        case MainMenuScene: {
-            renderMainMenu(game->renderer, (MainMenu*) game->scene.source);
-        } break;
+    if (game == NULL) return;
 
-        case WorldScene: {
-            renderWorld(game->renderer, (World*) game->scene.source);
-        } break;
-    }
+    renderWorld(game->renderer, (World*) game->world);
 }
