@@ -18,3 +18,8 @@ Mapu lze využít pomocí zadání cesty k souboru jako argument při spuštěn�
 
 Příklad mapy je přiložen jako soubor "map.txt" ve složce "build".
 Ve složce "build" se také nachází spustitelný soubor "Breakout" a font "arial.ttf", který je nutný pro zobrazení textu ve hře.
+
+Pro vytvoření souborů pro překlad (CMake) (nad kořenovou složkou): cmake -S ./ -B ./build
+Pro přeložení programu (nad složkou "build"): make
+
+!!! Font "arial.ttf" je nutný mít při spouštění uložený ve stejné složce jako je spustitelný soubor !!!
