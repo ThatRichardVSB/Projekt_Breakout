@@ -105,7 +105,7 @@ void updateBall(Ball* const ball, const Map* const map, const Paddle* const padd
         dirX = (paddle->position.x < ball->position.x) ? 1 : -1;
 
         const float maxRange = paddle->collision.w / 2.0;
-        const float range = abs(paddle->position.x - ball->position.x);
+        const float range = fabs(paddle->position.x - ball->position.x);
         dirXScale = (range / maxRange) + 0.5;
     }
 

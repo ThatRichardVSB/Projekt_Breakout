@@ -157,7 +157,7 @@ void eventGame(Game* const game, const SDL_Event event) {
     }
 }
 
-void eventClearGame(const Game* const game) {
+void eventClearGame() {
     if (current_events == NULL) return;
 
     event_count = 0;

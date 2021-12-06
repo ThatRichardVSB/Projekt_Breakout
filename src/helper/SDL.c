@@ -37,8 +37,8 @@ void SDL_RenderDrawCircle(SDL_Renderer* const renderer, const int x, const int y
 }
 
 void SDL_RenderFillCircle(SDL_Renderer* const renderer, const int x, const int y, const int radius) {
-    for (unsigned int w = 0; w < radius * 2; w++) {
-        for (unsigned int h = 0; h < radius * 2; h++) {
+    for (int w = 0; w < radius * 2; w++) {
+        for (int h = 0; h < radius * 2; h++) {
             int diff_x = radius - w;
             int diff_y = radius - h;
 

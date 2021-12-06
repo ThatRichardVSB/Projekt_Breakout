@@ -25,7 +25,7 @@ Game* createGame(SDL_Renderer* const renderer, SDL_Window* const window, Resourc
 void destroyGame(Game** const game);
 
 void eventGame(Game* const game, const SDL_Event event);
-void eventClearGame(const Game* const game);
+void eventClearGame();
 bool isKeyPressed(const SDL_Keycode key);
 bool isKeyJustPressed(const SDL_Keycode key);
 bool isMousePressed(const int button);

@@ -20,7 +20,7 @@ World* createWorld(Game* const game, char* const mapFilename) {
         exit(1);
     }
 
-    unsigned win_h = 0;
+    int win_h = 0;
     SDL_GetWindowSize(game->window, NULL, &win_h);
 
     world->game = game;
@@ -104,7 +104,7 @@ void updateWorld(World* const world, const double deltaTime) {
     world->points += destroyedBlock;
 
     if (world->state == Playing) { // Game is being played
-        unsigned int win_h = 0;
+        int win_h = 0;
         SDL_GetWindowSize(world->game->window, NULL, &win_h);
 
         if (world->ball->position.y > win_h + BALL_RADIUS) { // When the ball goes below the screen
@@ -144,19 +144,19 @@ void renderWorld(SDL_Renderer* const renderer, const World* const world) {
     char str[100];
     sprintf(str, "Score: %d Balls: %d Maps: %d", world->points, world->turns, world->screensLeft);
 
-    SDL_Color color = { 255, 255, 255 };
+    SDL_Color color = { 255, 255, 255, 255 };
     SDL_Surface* surface = TTF_RenderText_Solid(world->statsFont,
         str,
         color
     );
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
 
-    unsigned int w, h;
+    int w, h;
     TTF_SizeText(world->statsFont, str, &w, &h);
     float hRatio = (float) w / h, wRatio = (float) h / w;
 
-    const unsigned int maxW = world->map->width * BLOCK_WIDTH;
-    const unsigned int maxH = (world->map->walls[1].y + world->map->walls[1].h - (WALL_WIDTH * 2));
+    const int maxW = world->map->width * BLOCK_WIDTH;
+    const int maxH = (world->map->walls[1].y + world->map->walls[1].h - (WALL_WIDTH * 2));
 
     if (w > h) {
         if (w > maxW) {

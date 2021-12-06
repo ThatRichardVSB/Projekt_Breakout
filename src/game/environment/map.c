@@ -29,8 +29,8 @@ Map* createMap(SDL_Window* const window, char* const mapFilename) {
     }
 
     // Get window size and calculate map size based on it 
-    unsigned int win_w = 0;
-    unsigned int win_h = 0;
+    int win_w = 0;
+    int win_h = 0;
 
     SDL_GetWindowSize(window, &win_w, &win_h);
 
@@ -117,8 +117,8 @@ void destroyMap(Map** const _map) {
 // Functions
 void generateMap(Map* const map) {
     // First fill it with air
-    for (int y = 0; y < map->height; y++) {
-        for (int x = 0; x < map->width; x++) {
+    for (unsigned int y = 0; y < map->height; y++) {
+        for (unsigned int x = 0; x < map->width; x++) {
             map->blocks[y][x] = Air;
         }
     }
@@ -131,8 +131,8 @@ void generateMap(Map* const map) {
 
     if (mapFile == NULL) { // Default Layout
         Block block = Red;
-        for (int y = MAP_START_Y; y < MAP_START_Y + 4 * 2; y++) {
-            for (int x = 0; x < map->width; x++) {
+        for (unsigned int y = MAP_START_Y; y < MAP_START_Y + 4 * 2; y++) {
+            for (unsigned int x = 0; x < map->width; x++) {
                 map->blocks[y][x] = block;
             }
 
@@ -140,8 +140,8 @@ void generateMap(Map* const map) {
             if (offsetY != 0 && (offsetY + 1) % 2 == 0) block -= (Red - Orange);
         }
     } else { // Load from file
-        for (int y = 0; y < map->height; y++) {
-            for (int x = 0; x < map->width; x++) {
+        for (unsigned int y = 0; y < map->height; y++) {
+            for (unsigned int x = 0; x < map->width; x++) {
                 if (feof(mapFile)) {
                     goto GOTO_MapEndOfFile;
                 }
@@ -185,8 +185,8 @@ void generateMap(Map* const map) {
 int getBlockCountMap(const Map* const map) {
     int count = 0;
 
-    for (int y = 0; y < map->height; y++) {
-        for (int x = 0; x < map->width; x++) {
+    for (unsigned int y = 0; y < map->height; y++) {
+        for (unsigned int x = 0; x < map->width; x++) {
             if (map->blocks[y][x] != Air) count++;
         }
     }
@@ -216,7 +216,7 @@ void renderMap(SDL_Renderer* const renderer, const Map* const map) {
                 .h = BLOCK_HEIGHT - BLOCK_PADDING
             };
 
-            int r = 255, g = 255, b = 255;
+            int r = 255, g = 255, b = 255, a = SDL_ALPHA_OPAQUE;
             switch (block) {
                 case Yellow: {
                     r = 255;
@@ -241,9 +241,13 @@ void renderMap(SDL_Renderer* const renderer, const Map* const map) {
                     g = 0;
                     b = 0;
                 } break;
+
+                default: {
+                    a = 0;
+                } break;
             }
 
-            SDL_SetRenderDrawColor(renderer, r, g, b, SDL_ALPHA_OPAQUE);
+            SDL_SetRenderDrawColor(renderer, r, g, b, a);
             SDL_RenderFillRect(renderer, &rect);
         }
     }
