@@ -25,10 +25,13 @@ typedef struct {
 
     Scene scene;
 
+    int argc;
+    char** argv;
+
     bool quit;
 } Game;
 
-Game* createGame(SDL_Renderer* const renderer, SDL_Window* const window, ResourceManager* const resources, const SceneChoice start_scene);
+Game* createGame(SDL_Renderer* const renderer, SDL_Window* const window, ResourceManager* const resources, const SceneChoice start_scene, int argc, char** argv);
 void destroyGame(Game** const game);
 
 void gameChangeScene(Game* const game, const SceneChoice choice);
@@ -36,6 +39,7 @@ void gameChangeScene(Game* const game, const SceneChoice choice);
 void eventGame(Game* const game, const SDL_Event event);
 void eventClearGame(const Game* const game);
 bool isKeyPressed(const SDL_Keycode key);
+bool isKeyJustPressed(const SDL_Keycode key);
 bool isMousePressed(const int button);
 Point getMousePos();
 

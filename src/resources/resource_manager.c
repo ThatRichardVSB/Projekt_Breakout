@@ -17,7 +17,7 @@ ResourceManager* createResourceManager() {
     manager->fontCount = 0;
     manager->fonts = NULL;
 
-    addResourceFont(manager, "arial.ttf", 26);
+    addResourceFont(manager, "arial.ttf", 64);
 
     return manager;
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SDL.h>
+#include <SDL_ttf.h>
 
 #include "../game.h"
 #include "map.h"
@@ -30,9 +31,10 @@ typedef struct {
     WorldState state;
 
     Game* game;
+    TTF_Font* statsFont;
 } World;
 
-World* createWorld(Game* const game, FILE* const mapFile);
+World* createWorld(Game* const game, char* const mapFilename);
 void destroyWorld(World** const world);
 
 void launchBallWorld(World* const world);

@@ -11,7 +11,9 @@ static SDL_Event* current_events = NULL;
 static unsigned int event_count = 0;
 
 static SDL_Keycode* keys_pressed = NULL;
+static SDL_Keycode* keys_just_pressed = NULL;
 static unsigned int key_count = 0;
+static unsigned int just_key_count = 0;
 
 static Point mouse_pos = {
     .x = 0,
@@ -19,7 +21,7 @@ static Point mouse_pos = {
 };
 
 // Constructor / Deconstructor
-Game* createGame(SDL_Renderer* const renderer, SDL_Window* const window, ResourceManager* const resources, const SceneChoice start_scene) {
+Game* createGame(SDL_Renderer* const renderer, SDL_Window* const window, ResourceManager* const resources, const SceneChoice start_scene, int argc, char** argv) {
     Game* game = (Game*) malloc(sizeof(Game));
 
     if (game == NULL) {
@@ -31,6 +33,9 @@ Game* createGame(SDL_Renderer* const renderer, SDL_Window* const window, Resourc
     game->resources = resources;
 
     game->quit = false;
+
+    game->argc = argc;
+    game->argv = argv;
 
     gameChangeScene(game, start_scene);
 
@@ -74,7 +79,12 @@ void gameChangeScene(Game* const game, const SceneChoice choice) {
 
     switch (game->scene.choice) {
         case WorldScene: {
-            scene = createWorld(game, NULL);
+            char* map = NULL;
+            if (game->argc >= 2) {
+                map = game->argv[1];
+            }
+
+            scene = createWorld(game, map);
         } break;
 
         default: { // When invalid or Main, just go to the Main Menu
@@ -122,7 +132,9 @@ void eventGame(Game* const game, const SDL_Event event) {
 
             if (!found) {
                 unsigned int index = key_count;
+                unsigned int justIndex = just_key_count;
                 size_t mSize = sizeof(SDL_Keycode) * ++key_count;
+                size_t mJustSize = sizeof(SDL_Keycode) * ++just_key_count;
 
                 if (keys_pressed == NULL) {
                     keys_pressed = (SDL_Keycode*) malloc(mSize);
@@ -134,7 +146,18 @@ void eventGame(Game* const game, const SDL_Event event) {
                     exit(1);
                 }
 
+                if (keys_just_pressed == NULL) {
+                    keys_just_pressed = (SDL_Keycode*) malloc(mJustSize);
+                } else {
+                    keys_just_pressed = (SDL_Keycode*) realloc(keys_just_pressed, mJustSize);
+                }
+
+                if (keys_pressed == NULL) {
+                    exit(1);
+                }
+
                 keys_pressed[index] = event.key.keysym.sym;
+                keys_just_pressed[justIndex] = event.key.keysym.sym;
             }
         } break;
 
@@ -172,11 +195,26 @@ void eventClearGame(const Game* const game) {
 
     free(current_events);
     current_events = NULL;
+
+    free(keys_just_pressed);
+    keys_just_pressed = NULL;
+
+    just_key_count = 0;
 }
 
 bool isKeyPressed(const SDL_Keycode key) {
     for (unsigned int i = 0; i < key_count; i++) {
         if (keys_pressed[i] == key) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool isKeyJustPressed(const SDL_Keycode key) {
+    for (unsigned int i = 0; i < just_key_count; i++) {
+        if (keys_just_pressed[i] == key) {
             return true;
         }
     }

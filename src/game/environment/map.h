@@ -27,14 +27,16 @@ typedef struct {
 
     unsigned int width;
     unsigned int height;
+
+    char* filename;
 } Map;
 
 extern const CollisionBox BlockCollision;
 
-Map* createMap(SDL_Window* const window, const FILE* mapFile);
+Map* createMap(SDL_Window* const window, char* const mapFilename);
 void destroyMap(Map** const map);
 
-void generateMap(Map* const map, const FILE* const mapFile);
+void generateMap(Map* const map);
 int getBlockCountMap(const Map* const map);
 
 void updateMap(Map* const map);

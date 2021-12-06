@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <stdlib.h>
 #include <SDL.h>
 
@@ -13,7 +14,7 @@ const CollisionBox BlockCollision = {
 };
 
 // Constructor / Deconstructor
-Map* createMap(SDL_Window* const window, const FILE* mapFile) {
+Map* createMap(SDL_Window* const window, char* const mapFilename) {
     Map* map = (Map*) malloc(sizeof(Map));
 
     if (map == NULL) {
@@ -43,7 +44,7 @@ Map* createMap(SDL_Window* const window, const FILE* mapFile) {
         .h = WALL_WIDTH * 4
     };
 
-    const unsigned int map_height = win_h - (topWall.y + topWall.h);
+    const unsigned int map_height = win_h - (topWall.y + topWall.h) - WALL_WIDTH * 4;
     map->height = map_height / BLOCK_HEIGHT;
 
     if (map_width % BLOCK_WIDTH != 0 || map_height % BLOCK_HEIGHT != 0) {
@@ -68,7 +69,7 @@ Map* createMap(SDL_Window* const window, const FILE* mapFile) {
 
     // Put horizontal walls after making space for blocks
     const int horWallY = topWall.y + topWall.h;
-    const int horWallHeight = map->height * BLOCK_HEIGHT - WALL_WIDTH;
+    const int horWallHeight = map->height * BLOCK_HEIGHT + WALL_WIDTH * 3;
 
     CollisionBox leftWall = {
         .x = 0,
@@ -87,8 +88,10 @@ Map* createMap(SDL_Window* const window, const FILE* mapFile) {
     map->walls[1] = topWall;
     map->walls[2] = rightWall;
 
+    map->filename = mapFilename;
+
     // Generate the map
-    generateMap(map, mapFile);
+    generateMap(map);
 
     return map;
 }
@@ -112,12 +115,18 @@ void destroyMap(Map** const _map) {
 
 
 // Functions
-void generateMap(Map* const map, const FILE* const mapFile) {
+void generateMap(Map* const map) {
     // First fill it with air
     for (int y = 0; y < map->height; y++) {
         for (int x = 0; x < map->width; x++) {
             map->blocks[y][x] = Air;
         }
+    }
+
+    FILE* mapFile = NULL;
+
+    if (map->filename != NULL) {
+        mapFile = fopen(map->filename, "rt");
     }
 
     if (mapFile == NULL) { // Default Layout
@@ -131,7 +140,45 @@ void generateMap(Map* const map, const FILE* const mapFile) {
             if (offsetY != 0 && (offsetY + 1) % 2 == 0) block -= (Red - Orange);
         }
     } else { // Load from file
+        for (int y = 0; y < map->height; y++) {
+            for (int x = 0; x < map->width; x++) {
+                if (feof(mapFile)) {
+                    goto GOTO_MapEndOfFile;
+                }
 
+                int value;
+                fscanf(mapFile, "%d ", &value);
+
+                Block block;
+                switch (value) {
+                    case 0: {
+                        block = Air;
+                    } break;
+
+                    case 1: {
+                        block = Yellow;
+                    } break;
+
+                    case 2: {
+                        block = Green;
+                    } break;
+
+                    case 3: {
+                        block = Orange;
+                    } break;
+
+                    case 4: {
+                        block = Red;
+                    } break;
+                }
+
+                map->blocks[y][x] = block;
+            }
+        }
+
+        GOTO_MapEndOfFile:
+
+        fclose(mapFile);
     }
 }
 

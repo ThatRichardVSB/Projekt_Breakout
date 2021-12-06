@@ -11,7 +11,7 @@
 #define WINDOW_WIDTH (WALL_WIDTH * 2 + BLOCK_WIDTH * 14)
 #define WINDOW_HEIGHT (WALL_WIDTH * 2 + BLOCK_HEIGHT * 26)
 
-int main() {
+int main(int argc, char** argv) {
     srand(time(NULL));
 
     SDL_Init(SDL_INIT_VIDEO);
@@ -31,7 +31,7 @@ int main() {
     );
 
     ResourceManager* resources = createResourceManager();
-    Game* game = createGame(renderer, window, resources, WorldScene);
+    Game* game = createGame(renderer, window, resources, WorldScene, argc, argv);
 
     Uint64 NOW = SDL_GetPerformanceCounter();
     Uint64 LAST = 0;

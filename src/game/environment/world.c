@@ -13,7 +13,7 @@
 TTF_Font* font;
 
 // Constructor / Deconstructor
-World* createWorld(Game* const game, FILE* const mapFile) {
+World* createWorld(Game* const game, char* const mapFilename) {
     World* world = (World*) malloc(sizeof(World));
 
     if (world == NULL) {
@@ -25,8 +25,7 @@ World* createWorld(Game* const game, FILE* const mapFile) {
 
     world->game = game;
     world->ball = NULL;
-    // TODO: Map file
-    world->map = createMap(game->window, mapFile);
+    world->map = createMap(game->window, mapFilename);
     world->paddle = createPaddle((world->map->width * BLOCK_WIDTH + WALL_WIDTH) / 2, win_h - (PADDLE_BOTTOM_BLOCK_MARGIN * BLOCK_HEIGHT), world->map->walls);
 
     world->points = 0;
@@ -34,6 +33,8 @@ World* createWorld(Game* const game, FILE* const mapFile) {
     world->screensLeft = MAX_SCREENS;
 
     world->state = Idle;
+
+    world->statsFont = getResourceFont(world->game->resources, "Arial");
 
     return world;
 }
@@ -66,7 +67,7 @@ void launchBallWorld(World* const world) {
 }
 
 void resetWorld(World* const world) {
-    generateMap(world->map, NULL);
+    generateMap(world->map);
     destroyBall(&world->ball);
 
     world->points = 0;
@@ -83,12 +84,16 @@ void updateWorld(World* const world, const double deltaTime) {
     updatePaddle(world->paddle, deltaTime);
 
     if (world->state != Playing) { // Game hasn't started yet
-        if (isMousePressed(SDL_BUTTON_LEFT) || isKeyPressed(SDLK_SPACE)) {
+        if (isMousePressed(SDL_BUTTON_LEFT) || isKeyJustPressed(SDLK_SPACE)) {
             if (world->state == Idle) {
                 launchBallWorld(world);
 
                 world->state = Playing;
             } else { // When Lost or Won you have to click once to return to Idle
+                if (world->state == Won || world->state == Lost) {
+                    resetWorld(world);
+                }
+
                 world->state = Idle;
             }
         }
@@ -117,10 +122,10 @@ void updateWorld(World* const world, const double deltaTime) {
         }
 
         if (destroyedBlock != Air && getBlockCountMap(world->map) == 0) { // When no blocks are on the map anymore
-            if (world->screensLeft > 0) {
-                world->screensLeft--;
+            world->screensLeft--;
 
-                generateMap(world->map, NULL);
+            if (world->screensLeft > 0) {
+                generateMap(world->map);
                 launchBallWorld(world);
             } else {
                 world->state = Won;
@@ -136,18 +141,54 @@ void renderWorld(SDL_Renderer* const renderer, const World* const world) {
     renderPaddle(renderer, world->paddle);
     renderMap(renderer, world->map);
 
-    TTF_Font* font = getResourceFont(world->game->resources, "Arial");
+    char str[100];
+    sprintf(str, "Score: %d Balls: %d Maps: %d", world->points, world->turns, world->screensLeft);
 
-    // TODO: Print stats
-    /*if (font != NULL) {
-        SDL_Color color = { 255, 255, 255 };
-        SDL_Surface* surface = TTF_RenderText_Solid(font,
-            "Welcome to Gigi Labs", color);
-        SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_Color color = { 255, 255, 255 };
+    SDL_Surface* surface = TTF_RenderText_Solid(world->statsFont,
+        str,
+        color
+    );
+    SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
 
-        SDL_RenderCopy(renderer, texture, NULL, NULL);
+    unsigned int w, h;
+    TTF_SizeText(world->statsFont, str, &w, &h);
+    float hRatio = (float) w / h, wRatio = (float) h / w;
 
-        SDL_DestroyTexture(texture);
-        SDL_FreeSurface(surface);
-    }*/
+    const unsigned int maxW = world->map->width * BLOCK_WIDTH;
+    const unsigned int maxH = (world->map->walls[1].y + world->map->walls[1].h - (WALL_WIDTH * 2));
+
+    if (w > h) {
+        if (w > maxW) {
+            w = maxW;
+            h = w * wRatio;
+        }
+
+        if (h > maxH) {
+            h = maxH;
+            w = h * hRatio;
+        }
+    } else {
+        if (h > maxH) {
+            h = maxH;
+            w = h * hRatio;
+        }
+
+        if (w > maxW) {
+            w = maxW;
+            h = w * wRatio;
+        }
+    }
+
+    SDL_Rect txt_pos = {
+        .x = world->map->walls[0].x + world->map->walls[0].w,
+        .y = world->map->walls[1].y + WALL_WIDTH,
+        .w = w,
+        .h = h
+    };
+
+    SDL_RenderCopy(renderer, texture, NULL, &txt_pos);
+
+    SDL_DestroyTexture(texture);
+    SDL_FreeSurface(surface);
 }

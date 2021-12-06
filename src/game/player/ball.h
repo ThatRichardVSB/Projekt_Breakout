@@ -9,7 +9,7 @@
 #define BALL_SPEED 25
 #define BALL_RADIUS (BLOCK_HEIGHT / 2)
 
-#define BALL_SPAWN_HEIGHT (BLOCK_HEIGHT * 2)
+#define BALL_SPAWN_HEIGHT BLOCK_HEIGHT
 
 typedef struct {
     Point position;
